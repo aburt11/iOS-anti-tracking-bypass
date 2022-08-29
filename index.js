@@ -6,17 +6,17 @@
  * lol Apple.
  */
   function bypassiOSCookieBlocking() {
-    this.cookieFix = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')
+    const cookieFix = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')
       Object.defineProperty(document, 'cookie', {
         get: () => {
           let res = [];
           Object.keys(localStorage).forEach(function (key) {
-            if (key.startsWith('cookie-')) {
+            if (key.startsWith('lsCookie-')) {
               const item = JSON.parse(localStorage.getItem(key));
               if (item.expiry && new Date(item.expiry) < new Date()) {
                 localStorage.removeItem(key);
               } else {
-                res.push(key.replace('cookie-', '') + '=' + item.value);
+                res.push(key.replace('lsCookie-', '') + '=' + item.value);
               }
             }
           });
@@ -25,8 +25,8 @@
         set: (val) => {
           var regex = new RegExp("([^=;]*)\\s*=\\s*([^;]*);(.*expires=([^;]+);)?");
           var matches = regex.exec(val);
-          this.cookieFix.set.call(document, val);
-          localStorage.setItem('cookie-' + matches[1], JSON.stringify({
+          cookieFix.set.call(document, val);
+          localStorage.setItem('lsCookie-' + matches[1], JSON.stringify({
             value: matches[2],
             expiry: matches[4]
           }));
